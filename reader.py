@@ -14,26 +14,56 @@ def read_csv_file(file_path):
 # modyfikacja pliku in.csv
 def modify_csv_file(data, changes, new_values):
     for change in changes:
-        x, y, value = change.split(',')
-        x = int(x)
-        y = int(y)
-        if y >= len(data) or x >= len(data[y]):
-            print(f"Invalid change: {change}") # cos spoza zakresu - np.
-            # kolumna, której nie ma
+        values = change.split(',')
+        # jezeli poda wartosc jest inna niz 3 informuje o tym uzytkownika
+        if len(values) != 3:
+            print(f"Nieprawidłowa zmiana: {change}. Oczekiwane 3 wartości "
+                  f"oddzielone przecinkami.")
             continue
-        data[y][x] = value
-# dodawanie wartosci spoza zakresu w odpowiednie miejsce
+        x, y, value = values
+        # sprawdzam czy x i y to liczby. jesli nie informuje uzytkownika
+        if not x.isdigit():
+            print(f"Nieprawidłowa zmiana {change}. Pierwszy argument musi być "
+                  f"liczbą.")
+            continue
+        x = int(x)
+        if not y.isdigit():
+            print(f"Nieprawidłowa zmiana {change}. Drugi argument musi byc "
+                  f"liczbą.")
+            continue
+        y = int(y)
+
+        # jesli podamy x,y spoza zakresu doda go w to miejsce
+        if y >= len(data) or x >= len(data[y]):
+            # print(f"Nieprawidłowa zmiana: {change}. Zbyt wiele argumentów.")
+            while y >= len(data):
+                data.append([])
+            while x >= len(data[y]):
+                data[y].append('')
+            data[y][x] = value
+        else:
+            data[y][x] = value
+
     for value in new_values:
         if len(value) < 3:
-            print(f"Invalid value: {value}")
             continue
         x, y, value = value[0], value[1], value[2]
+        if not x.isdigit():
+            # print(f"Nieprawidłowa zmiana {change}. Pierwszy argument musi
+            # być liczbą.")
+            continue
         x = int(x)
+        if not y.isdigit():
+            # print(f"Nieprawidłowa zmiana {change}. Drugi argument musi być"
+            # liczbą.")
+            continue
         y = int(y)
         if y >= len(data):
-            data.extend([[] for _ in range(y - len(data) + 1)])
+            while y >= len(data):
+                data.append([])
         if x >= len(data[y]):
-            data[y].extend([''] * (x - len(data[y]) + 1))
+            while x >= len(data[y]):
+                data[y].append('')
         data[y][x] = value
 
 
@@ -50,7 +80,7 @@ def write_csv_file(data, file_path):
         writer.writerows(data)
 
 
-# tworzenie pliku in.csv jezeli go nie ma - domyslnie są wartosci podane w
+# tworzenie pliku in.csv jezeli go nie ma-domyslnie są wartosci podane w
 # terminalu
 def create_input_file(input_file_path, values):
     if not os.path.exists(input_file_path):
